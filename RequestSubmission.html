@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Submission</title>
+    <link rel = "stylesheet" href = "style.css" >
+</head>
+
+<body>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('requestSubmission')">Request Submission</div>
+            <div class="tab" onclick="switchTab('viewSchedule')">View Schedule</div>
+        </div>
+
+        <div id="requestSubmission" class="tab-content active">
+            <form id="requestSubmissionForm" action="https://script.google.com/macros/s/AKfycbwUtoeZTZ06CdgeuBbxeJ2VPY7HwcI8XGMsZ4YOY1StZapuHO6CrBq160OLGyDmG0whmA/exec" method="POST">
+                <input type="hidden" name="formType" value="requestSubmission">
+                <h2>Request Submission</h2>
+                
+                <label for="reqTask">Task Title:</label>
+                <input type="text" id="reqTask" name="Task" required>
+
+                <label for="reqName">Name:</label>
+                <input type="text" id="reqName" name="Name" required>
+
+                <label for="reqEmail">Email:</label>
+                <input type="email" id="reqEmail" name="Email" required>
+
+                <label for="reqDate">Date:</label>
+                <input type="date" id="reqDate" name="Date" required>
+
+                <label for="reqTeamName">Team Name:</label>
+                <input type="text" id="reqTeamName" name="Team Name" required>
+
+                <label for="reqTeamNumber">Team Number:</label>
+                <input type="text" id="reqTeamNumber" name="Team Number" required>
+
+                <label for="reqProblemType">Problem Type:</label>
+                <select id="reqProblemType" name="Problem Type" required>
+                    <option value="">Select the problem type</option>
+                    <option value="mechanical">Mechanical</option>
+                    <option value="electrical">Electrical</option>
+                    <option value="design">design</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <label for="reqUrgency">Urgency:</label>
+                <select id="reqUrgency" name="Urgency" required>
+                    <option value="">Select urgency level</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="By end of day">By End of Day</option>
+                    <option value="Within the hour">Within the hour</option>
+                </select>
+
+                <label for="reqDescription">Description:</label>
+                <textarea id="reqDescription" name="Description" rows="4" required></textarea>
+
+                <button type="submit" id="reqSubmitButton">Submit Request</button>
+            </form>
+        </div>
+
+        <div id="viewSchedule" class="tab-content">
+            <!-- create a nice view for the volunteers to see what tasks are available and let them sign up for tasks
+             be able to mark availability 
+             see a list of current volunteers -->
+             <iframe src="https://docs.google.com/spreadsheets/d/1VgPTpiZIYuqW0Pt3RBbKn39HqWyUJmqM6ydjFt6rNCM/pubhtml?gid=1395002533&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+        </div>
+    </div>
+
+    <script>
+
+        document.getElementById('requestSubmissionForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(this);
+
+            // Manually collect multi-select field
+            var problemType = Array.from(document.getElementById('reqProblemType').selectedOptions)
+                                      .map(option => option.value);
+                                     
+            formData.set('Problem Type', problemType); // Set qualifications as array
+            
+            this.reset(); // Reset the form after submission
+    
+            var submitButton = document.getElementById('reqSubmitButton');
+    
+            // Change button text to "Submitting..."
+            submitButton.textContent = 'Submitting...';
+
+            // Log the form data to the console
+            console.log("Form Data being sent:");
+
+            // Use forEach to loop through and log all form fields
+            formData.forEach((value, key) => {
+                console.log(key + ": " + value);
+            });
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+                
+            }).then(response => response.json())
+              .then(data => {
+                    alert('Form submitted successfully!');
+                  
+              })
+              .catch(error => {
+                  alert('There was an error!');
+                  console.error('Error:', error);
+            }).finally(() => {
+            // Revert button text back to "Submit Request" and reset form
+            submitButton.textContent = 'Submit Request';
+            });
+        });
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            var contents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+
+            // Remove active class from all tabs
+            var tabs = document.getElementsByClassName('tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+
+            // Show the selected tab and set it as active
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector('.tab[onclick="switchTab(\'' + tabName + '\')"]').classList.add('active');
+        }
+    </script>
+
+</body>
+</html>

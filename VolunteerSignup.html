@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Form</title>
+    <link rel = "stylesheet" href = "style.css" > 
+</head>
+
+<body>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('volunteerSignup')">Volunteer Signup</div>
+            <div class="tab" onclick="switchTab('volunteerList')">Volunteer List</div>
+            <div class="tab" onclick="switchTab('viewSchedule')">View Schedule</div>
+        </div>
+
+        <div id="volunteerSignup" class="tab-content active">
+            <form id="volunteerSignupForm" action="https://script.google.com/macros/s/AKfycbwUtoeZTZ06CdgeuBbxeJ2VPY7HwcI8XGMsZ4YOY1StZapuHO6CrBq160OLGyDmG0whmA/exec" method="POST">
+                <input type="hidden" name="formType" value="volunteerSignup">
+                <h2>Volunteer Sign Up</h2>
+
+                <!-- Name Input -->
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="Name" required>
+
+                <!-- Team Name Input -->
+                <label for="teamName">Team Name:</label>
+                <input type="text" id="teamName" name="Team Name" required>
+
+                <!-- Team Number Input -->
+                <label for="teamNumber">Team Number:</label>
+                <input type="text" id="teamNumber" name="Team Number" required>
+
+                <!-- Qualifications Dropdown -->
+                <label for="qualifications">Qualifications:</label>
+                <select id="qualifications" name="Qualifications" multiple>
+                    <option value="" disabled selected>Select your qualification</option>
+                    <option value="electrical">Electrical</option>
+                    <option value="mechanical">Mechanical</option>
+                    <option value="design">Design</option>
+                    <option value="all">All</option>
+                    <!-- <option value="tool request">Tool Request</option> -->
+                    
+                </select>
+
+                <!-- Shifts Dropdown -->
+                <label for="shifts">Available Shifts:</label>
+                <select id="shifts" name="Shifts" multiple required>
+                    <option value="" disabled selected>Select your available shifts</option>
+                    <option value="friday">October 18th, Friday</option>
+                    <option value="saturday">October 19th, Saturday</option>
+                    <option value="sunday">October 20th, Sunday</option>
+                    <!-- <option value="broken bot">Broken Bot</option>
+                    <option value="tool request">Tool Request</option> -->
+                    
+                </select>
+
+                <!-- Email Input -->
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="Email" required>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitButton">Sign Up</button>        
+            </form>
+        </div>
+
+        <div id="volunteerList" class="tab-content">
+            <!-- see a list of current volunteers -->
+            <iframe src="https://docs.google.com/spreadsheets/d/1VgPTpiZIYuqW0Pt3RBbKn39HqWyUJmqM6ydjFt6rNCM/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+        </div>
+
+        <div id="viewSchedule" class="tab-content">
+            <!-- create a nice view for the volunteers to see what tasks are available and let them sign up for tasks
+             be able to mark availability 
+             see a list of current volunteers -->
+             <iframe src="https://docs.google.com/spreadsheets/d/1VgPTpiZIYuqW0Pt3RBbKn39HqWyUJmqM6ydjFt6rNCM/pubhtml?gid=1395002533&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('volunteerSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(this);
+
+            // Manually collect multi-select field
+            var qualifications = Array.from(document.getElementById('qualifications').selectedOptions)
+                                      .map(option => option.value);
+                                     
+            formData.set('Qualifications', qualifications); // Set qualifications as array
+
+            var shifts = Array.from(document.getElementById('shifts').selectedOptions)
+                                      .map(option => option.value);
+                                     
+            formData.set('Shifts', shifts); // Set qualifications as array
+            
+            // Log the form data to the console
+            console.log("Form Data being sent:");
+
+            // Use forEach to loop through and log all form fields
+            formData.forEach((value, key) => {
+                console.log(key + ": " + value);
+            });
+
+            this.reset(); // Reset the form after submission
+            
+            var submitButton = document.getElementById('submitButton');
+    
+            // Change button text to "Submitting..."
+            submitButton.textContent = 'Submitting...';
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                    alert('Form submitted successfully');
+              })
+              .catch(error => {
+                  alert('There was an error!');
+                  console.error('Error:', error);
+            }).finally(() => {
+                // Revert button text back to "Submit Request" and reset form
+                submitButton.textContent = 'Sign Up';
+            });
+        });
+
+        document.getElementById('viewSchedule').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(this);
+            
+            this.reset(); // Reset the form after submission
+    
+            var submitButton = document.getElementById('reqSubmitButton');
+    
+            // Change button text to "Submitting..."
+            submitButton.textContent = 'Submitting...';
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+                
+            }).then(response => response.json())
+              .then(data => {
+                    alert('Form submitted successfully!');
+                  
+              })
+              .catch(error => {
+                  alert('There was an error!');
+                  console.error('Error:', error);
+            }).finally(() => {
+            // Revert button text back to "Submit Request" and reset form
+            submitButton.textContent = 'Submit Request';
+            });
+        });
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            var contents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+
+            // Remove active class from all tabs
+            var tabs = document.getElementsByClassName('tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+
+            // Show the selected tab and set it as active
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector('.tab[onclick="switchTab(\'' + tabName + '\')"]').classList.add('active');
+        }
+
+    </script>
+
+</body>
+</html>
